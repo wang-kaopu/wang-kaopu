@@ -1,16 +1,15 @@
-## Hi there 👋
+# 自我介绍
 
-<!--
-**wang-kaopu/wang-kaopu** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
+> **介绍你自己**，比如你的兴趣爱好，你的学习或者生活经历，你认为有趣或者值得向别人展示的记忆，不限字数，当然，图文并茂，想必更能吸引读者。
 
-Here are some ideas to get you started:
+- 王坤平。
 
-- 🔭 I’m currently working on ...
-- 🌱 I’m currently learning ...
-- 👯 I’m looking to collaborate on ...
-- 🤔 I’m looking for help with ...
-- 💬 Ask me about ...
-- 📫 How to reach me: ...
-- 😄 Pronouns: ...
-- ⚡ Fun fact: ...
--->
+- 我在学校拍的花：
+
+  <img src="https://cdn.jsdelivr.net/gh/wang-kaopu/Picgo@main/img/202509051632951.png" alt="image-20250905163255377" style="zoom:25%;" />
+
+  <img src="https://cdn.jsdelivr.net/gh/wang-kaopu/Picgo@main/img/202509051633917.png" alt="image-20250905163329590" style="zoom:25%;" />
+
+- 喜欢听有点神神叨叨的音乐：
+
+  <img src="https://cdn.jsdelivr.net/gh/wang-kaopu/Picgo@main/img/202509051635911.png" alt="image-20250905163511682" style="zoom: 33%;" />
