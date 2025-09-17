@@ -76,3 +76,67 @@ def lcs_len(a, b):
                 dp[i][j] = max(dp[i+1][j], dp[i][j+1])
     return dp[0][0]
 
+# =====================
+# 综合相似度计算模块
+# =====================
+def compute_similarity(a_raw, b_raw, weights=None):
+    """
+    综合计算两段文本的相似度，返回详细分数和中间结果：
+    - ngram相似度
+    - 编辑距离相似度
+    - LCS相似度
+    - 综合得分
+    """
+    a = normalize(a_raw)
+    b = normalize(b_raw)
+    # ngram相似度（字符级）
+    sim1 = dice_coefficient(a, b, 1)
+    sim2 = dice_coefficient(a, b, 2)
+    sim3 = dice_coefficient(a, b, 3)
+    sim_ngram = (sim1 + sim2 + sim3) / 3.0
+
+    # 编辑距离相似度
+    dist = levenshtein(a, b)
+    maxlen = max(len(a), len(b))
+    sim_edit = 1 - dist / maxlen if maxlen > 0 else 1.0
+
+    # LCS相似度
+    lcs = lcs_len(a, b)
+    sim_lcs = lcs / maxlen if maxlen > 0 else 1.0
+
+    # 默认权重
+    if weights is None:
+        weights = {'ngram': 0.45, 'edit': 0.25, 'lcs': 0.30}
+
+    score = weights['ngram'] * sim_ngram + weights['edit'] * sim_edit + weights['lcs'] * sim_lcs
+    return {
+        'score': score,           # 综合得分
+        'sim_ngram': sim_ngram,   # ngram相似度
+        'sim_edit': sim_edit,     # 编辑距离相似度
+        'sim_lcs': sim_lcs,       # LCS相似度
+        'dist': dist,             # 编辑距离
+        'lcs_len': lcs,           # LCS长度
+        'len_a': len(a),          # 归一化后原文长度
+        'len_b': len(b)           # 归一化后抄袭文长度
+    }
+
+# =====================
+# 文件读取
+# =====================
+def read_file(path):
+    """
+    读取指定路径的文本文件内容
+    """
+    with open(path, 'r', encoding='utf-8') as f:
+        return f.read()
+
+# =====================
+# 主程序入口
+# =====================
+if __name__ == '__main__':
+    # 小测试，例句
+    orig = "今天是星期天，天气晴，今天晚上我要去看电影。"
+    plag = "今天是周天，天气晴朗，我晚上要去看电影。"
+    res = compute_similarity(orig, plag)
+    print("重复率(%) = {:.2f}".format(res['score']*100))
+    print(res)

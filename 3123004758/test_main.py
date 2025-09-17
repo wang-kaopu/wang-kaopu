@@ -23,10 +23,26 @@ def test_lcs_len():
     assert main.lcs_len('abcdef', 'abdf') == 4  # 'abdf'
     assert main.lcs_len('abc', 'abc') == 3
 
+def test_compute_similarity():
+    res = main.compute_similarity('abc', 'abc')
+    assert abs(res['score'] - 1.0) < 1e-6
+    res2 = main.compute_similarity('abc', 'xyz')
+    assert res2['score'] < 0.1
+
+def test_read_file():
+    import os
+    test_path = 'testfile.txt'
+    with open(test_path, 'w', encoding='utf-8') as f:
+        f.write('hello world')
+    assert main.read_file(test_path) == 'hello world'
+    os.remove(test_path)
+
 if __name__ == '__main__':
     test_normalize()
     test_ngrams()
     test_dice_coefficient()
     test_levenshtein()
     test_lcs_len()
+    test_compute_similarity()
+    test_read_file()
     print("测试通过")
