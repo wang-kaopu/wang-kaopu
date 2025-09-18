@@ -1,6 +1,6 @@
 import sys
-from file_utils import read_file
-from similarity import compute_similarity
+from algorithm.file_utils import read_file
+from algorithm.similarity import compute_similarity
 
 if __name__ == '__main__':
     try:

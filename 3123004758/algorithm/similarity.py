@@ -1,10 +1,10 @@
 import math
 import numpy as np
-from ngram import dice_coefficient
-from edit_distance import levenshtein
-from lcs import lcs_len
-from normalize import normalize
-from stopwords import is_all_stopwords, is_extreme_repeat
+from .ngram import dice_coefficient
+from .edit_distance import levenshtein
+from .lcs import lcs_len
+from .normalize import normalize
+from .stopwords import is_all_stopwords, is_extreme_repeat
 
 def cosine_similarity(a, b):
     from collections import Counter
