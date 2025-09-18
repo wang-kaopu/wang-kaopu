@@ -1,6 +1,7 @@
 import sys
 import re
 from collections import Counter
+import math
 
 # 停用词表（可根据实际需求扩展）
 STOPWORDS = set([
@@ -16,7 +17,7 @@ def normalize(text):
     - 去除标点和空格（仅保留中文、英文、数字）
     - 转为小写
     """
-    text = re.sub(r'[^\w\u4e00-\u9fff]', '', text)  # 保留中文汉字和英文数字字母
+    text = re.sub(r'[^-\u007f\w\u4e00-\u9fff]', '', text)  # 保留中文汉字和英文数字字母
     return text.lower().strip()
 
 # =====================
@@ -81,6 +82,34 @@ def lcs_len(a, b):
                 dp[i][j] = max(dp[i+1][j], dp[i][j+1])
     return dp[0][0]
 
+def cosine_similarity(a, b):
+    """
+    计算两个字符串的余弦相似度（基于字符级向量）
+    """
+    vec_a = Counter(a)
+    vec_b = Counter(b)
+    all_keys = set(vec_a.keys()) | set(vec_b.keys())
+    dot = sum(vec_a[k] * vec_b[k] for k in all_keys)
+    norm_a = math.sqrt(sum(v*v for v in vec_a.values()))
+    norm_b = math.sqrt(sum(v*v for v in vec_b.values()))
+    if norm_a == 0 or norm_b == 0:
+        return 0.0
+    return dot / (norm_a * norm_b)
+
+def jaccard_similarity(a, b):
+    """
+    计算两个字符串的Jaccard系数（基于字符集合）
+    """
+    set_a = set(a)
+    set_b = set(b)
+    if not set_a and not set_b:
+        return 1.0
+    inter = len(set_a & set_b)
+    union = len(set_a | set_b)
+    if union == 0:
+        return 0.0
+    return inter / union
+
 def is_all_stopwords(text):
     return all(char in STOPWORDS for char in text if char.strip())
 
@@ -125,6 +154,11 @@ def compute_similarity(a_raw, b_raw, weights=None):
     lcs = lcs_len(a, b)
     sim_lcs = lcs / maxlen if maxlen > 0 else 1.0
 
+    # 余弦相似度
+    sim_cosine = cosine_similarity(a, b)
+    # Jaccard系数
+    sim_jaccard = jaccard_similarity(a, b)
+
     # 默认权重
     if weights is None:
         weights = {'ngram': 0.45, 'edit': 0.25, 'lcs': 0.30}
@@ -135,6 +169,8 @@ def compute_similarity(a_raw, b_raw, weights=None):
         'sim_ngram': sim_ngram,   # ngram相似度
         'sim_edit': sim_edit,     # 编辑距离相似度
         'sim_lcs': sim_lcs,       # LCS相似度
+        'sim_cosine': sim_cosine, # 余弦相似度
+        'sim_jaccard': sim_jaccard, # Jaccard系数
         'dist': dist,             # 编辑距离
         'lcs_len': lcs,           # LCS长度
         'len_a': len(a),          # 归一化后原文长度
