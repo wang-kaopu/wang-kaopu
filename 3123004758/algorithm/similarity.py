@@ -7,26 +7,46 @@ from .normalize import normalize
 from .stopwords import is_all_stopwords, is_extreme_repeat
 
 def cosine_similarity(a, b):
+    """计算两个向量的余弦相似度
+    
+    Args:
+        a: 第一个向量（列表形式）
+        b: 第二个向量（列表形式）
+        
+    Returns:
+        float: 余弦相似度值，范围[0, 1]
+    """
+    # 处理空向量
+    if not a and not b:
+        return 1.0
+    if not a or not b:
+        return 0.0
+        
     from collections import Counter
     vec_a = Counter(a)
     vec_b = Counter(b)
-    all_keys = set(vec_a.keys()) | set(vec_b.keys())
-    if not all_keys:
-        return 0.0
     
-    # 向量化计算
-    keys_list = list(all_keys)
-    vec_a_array = np.array([vec_a.get(k, 0) for k in keys_list], dtype=np.float32)
-    vec_b_array = np.array([vec_b.get(k, 0) for k in keys_list], dtype=np.float32)
+    # 获取所有唯一键
+    all_keys = sorted(set(vec_a.keys()) | set(vec_b.keys()))
+    
+    # 向量化计算（使用numpy.float64以提高精度）
+    vec_a_array = np.array([vec_a.get(k, 0) for k in all_keys], dtype=np.float64)
+    vec_b_array = np.array([vec_b.get(k, 0) for k in all_keys], dtype=np.float64)
     
     # 计算点积和范数
-    dot_product = np.dot(vec_a_array, vec_b_array)
-    norm_a = np.linalg.norm(vec_a_array)
-    norm_b = np.linalg.norm(vec_b_array)
+    dot_product = float(np.dot(vec_a_array, vec_b_array))
+    norm_a = float(np.linalg.norm(vec_a_array))
+    norm_b = float(np.linalg.norm(vec_b_array))
     
-    if norm_a == 0 or norm_b == 0:
+    # 处理零向量
+    if norm_a == 0.0 or norm_b == 0.0:
         return 0.0
-    return dot_product / (norm_a * norm_b)
+        
+    # 计算相似度并确保结果在[0,1]范围内
+    similarity = dot_product / (norm_a * norm_b)
+    if abs(similarity) < 1e-10:  # 处理接近于0的情况
+        return 0.0
+    return min(1.0, max(0.0, similarity))
 
 def jaccard_similarity(a, b):
     set_a = set(a)

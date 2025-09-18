@@ -1,13 +1,15 @@
 def read_file(path):
     """
     读取指定路径的文本文件内容，自动处理文件不存在和编码问题
+    规范化文本内容，将连续空白字符替换为单个空格
     """
     try:
         with open(path, 'r', encoding='utf-8') as f:
-            return f.read()
+            content = f.read()
+            # 将多个空格、制表符、换行符替换为单个空格
+            return ' '.join(content.split())
     except FileNotFoundError:
-        print(f"文件不存在: {path}")
-        return ""
+        raise FileNotFoundError(f"文件不存在: {path}")
     except UnicodeDecodeError:
         try:
             with open(path, 'r', encoding='gbk') as f:
