@@ -1,0 +1,2 @@
+重复率(%) = 28.46
+{'score': 0.2846342912409227, 'sim_ngram': 0.1281612677077316, 'sim_edit': None, 'sim_lcs': None, 'sim_cosine': np.float32(0.5699367), 'sim_jaccard': 0.24786324786324787, 'dist': None, 'lcs_len': None, 'len_a': 531, 'len_b': 84, 'mode': 'long'}

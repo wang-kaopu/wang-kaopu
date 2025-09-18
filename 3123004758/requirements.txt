@@ -1,0 +1,11 @@
+# 基础依赖
+numpy
+
+# 性能分析与可视化
+snakeviz
+python-Levenshtein
+
+# 单元测试
+unittest; python_version>='3.0'
+
+# 兼容性
