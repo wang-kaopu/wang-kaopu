@@ -2,6 +2,11 @@ import sys
 import re
 from collections import Counter
 
+# 停用词表（可根据实际需求扩展）
+STOPWORDS = set([
+    "的", "了", "和", "是", "我", "你", "他", "她", "它", "在", "有", "也", "就", "不", "人", "都", "一个", "上", "中", "到", "说"
+])
+
 # =====================
 # 文本归一化处理
 # =====================
@@ -76,6 +81,13 @@ def lcs_len(a, b):
                 dp[i][j] = max(dp[i+1][j], dp[i][j+1])
     return dp[0][0]
 
+def is_all_stopwords(text):
+    return all(char in STOPWORDS for char in text if char.strip())
+
+def is_extreme_repeat(text):
+    # 判断文本是否为单一字符极端重复
+    return len(set(text)) == 1 and len(text) > 10
+
 # =====================
 # 综合相似度计算模块
 # =====================
@@ -89,6 +101,15 @@ def compute_similarity(a_raw, b_raw, weights=None):
     """
     a = normalize(a_raw)
     b = normalize(b_raw)
+    # 空文本
+    if not a or not b:
+        return {'score': 0.0, 'error': '输入文本为空'}
+    # 全为停用词
+    if is_all_stopwords(a) or is_all_stopwords(b):
+        return {'score': 0.0, 'error': '文本全为停用词'}
+    # 极端重复
+    if is_extreme_repeat(a) or is_extreme_repeat(b):
+        return {'score': 0.0, 'error': '文本极端重复'}
     # ngram相似度（字符级）
     sim1 = dice_coefficient(a, b, 1)
     sim2 = dice_coefficient(a, b, 2)
@@ -125,35 +146,54 @@ def compute_similarity(a_raw, b_raw, weights=None):
 # =====================
 def read_file(path):
     """
-    读取指定路径的文本文件内容
+    读取指定路径的文本文件内容，自动处理文件不存在和编码问题
     """
-    with open(path, 'r', encoding='utf-8') as f:
-        return f.read()
+    try:
+        with open(path, 'r', encoding='utf-8') as f:
+            return f.read()
+    except FileNotFoundError:
+        print(f"文件不存在: {path}")
+        return ""
+    except UnicodeDecodeError:
+        try:
+            with open(path, 'r', encoding='gbk') as f:
+                return f.read()
+        except Exception as e:
+            print(f"文件编码错误且无法自动识别: {path}，错误信息: {e}")
+            return ""
+    except Exception as e:
+        print(f"读取文件时发生未知错误: {path}，错误信息: {e}")
+        return ""
 
 # =====================
 # 主程序入口
 # =====================
-# =====================
-# 主程序入口
-# =====================
 if __name__ == '__main__':
-    if len(sys.argv) == 1:
-        # 小测试，例句
-        orig = "今天是星期天，天气晴，今天晚上我要去看电影。"
-        plag = "今天是周天，天气晴朗，我晚上要去看电影。"
-        res = compute_similarity(orig, plag)
-        print("重复率(%) = {:.2f}".format(res['score']*100))
-        print(res)
-    elif len(sys.argv) == 4:
-        # 命令行参数模式：原文、抄袭文、输出文件
-        orig_path = sys.argv[1]
-        plag_path = sys.argv[2]
-        out_path = sys.argv[3]
-        orig = read_file(orig_path)
-        plag = read_file(plag_path)
-        res = compute_similarity(orig, plag)
-        with open(out_path, 'w', encoding='utf-8') as f:
-            f.write("重复率(%) = {:.2f}\n".format(res['score']*100))
-            f.write(str(res) + "\n")
-    else:
-        print("用法: python main.py 原文路径 抄袭版路径 答案输出路径")
+    try:
+        if len(sys.argv) == 1:
+            # 小测试，例句
+            orig = "今天是星期天，天气晴，今天晚上我要去看电影。"
+            plag = "今天是周天，天气晴朗，我晚上要去看电影。"
+            res = compute_similarity(orig, plag)
+            print("重复率(%) = {:.2f}".format(res['score']*100))
+            print(res)
+        elif len(sys.argv) == 4:
+            # 命令行参数模式：原文、抄袭文、输出文件
+            orig_path = sys.argv[1]
+            plag_path = sys.argv[2]
+            out_path = sys.argv[3]
+            orig = read_file(orig_path)
+            plag = read_file(plag_path)
+            res = compute_similarity(orig, plag)
+            if 'error' in res:
+                print("检测异常：", res['error'])
+                with open(out_path, 'w', encoding='utf-8') as f:
+                    f.write("检测异常：{}\n".format(res['error']))
+            else:
+                with open(out_path, 'w', encoding='utf-8') as f:
+                    f.write("重复率(%) = {:.2f}\n".format(res['score']*100))
+                    f.write(str(res) + "\n")
+        else:
+            print("用法: python main.py 原文路径 抄袭版路径 答案输出路径")
+    except Exception as e:
+        print("程序运行时发生异常：", e)
